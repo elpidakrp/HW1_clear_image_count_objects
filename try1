@@ -7,7 +7,7 @@ from scipy import ndimage
 from PIL import Image, ImageEnhance, ImageFont, ImageDraw
 
 
-filename='C:/Users/User/Desktop/N3.png'
+filename='N3.png'
 img=cv2.imread(filename,cv2.IMREAD_GRAYSCALE)
 kernel_test_11 = np.ones((11,11),np.uint8)
 kernel_test_2 = np.ones((2,2),np.uint8)
@@ -33,21 +33,6 @@ def exclude_halves(contours, image):
                 break
 
 # -------------------------------- blurring the image-------------------------------------------------------------------
-
-def median_blurr_img(img,matrix_dimention):
-    pxl_range = math.floor(matrix_dimention / 2)
-    temp = np.zeros(matrix_dimention*matrix_dimention)
-    new_img = np.copy(img)
-    for pxl_col in range(pxl_range, img.shape[0] - pxl_range):
-        for pxl_row in range(pxl_range, img.shape[1] - pxl_range):
-            pointer = 0
-            for i in range(pxl_col - pxl_range, pxl_col + pxl_range):
-                for j in range(pxl_row - pxl_range, pxl_row + pxl_range):
-                    temp[pointer] = img[i, j]
-                    pointer = pointer + 1
-            temp.sort()
-            new_img[pxl_col][pxl_row] = temp[math.floor(len(temp) / 2)]
-    return new_img
 
 def median_filter(data, filter_size):
     temp = []
@@ -82,6 +67,7 @@ img_blurred_clean = cv2.dilate(img_blurred_clean,kernel_test_2,iterations = 2)
 img_blurred_clean = cv2.erode(img_blurred_clean,kernel_test_2,iterations = 3)
 img_blurred_clean = cv2.dilate(img_blurred_clean,kernel_test_2,iterations = 5)
 img_blurred_clean = cv2.erode(img_blurred_clean,kernel_test_2,iterations = 2)
+cv2.imwrite('img_blurred_clean.png',img)
 
 img_bw = cv2.threshold(img_blurred_clean, 71 , 255, cv2.THRESH_BINARY)[1]
 
@@ -92,10 +78,15 @@ img_bw_filled_holes = np.asarray([[255 if pxl > 0 else 0 for pxl in pxl_col] for
 
 # -------------------------------- counting objects and their sizes ----------------------------------------------------
 
+some_image = Image.open('img_blurred_clean.png').convert('RGBA')
+d = ImageDraw.Draw(some_image)
+# d.text((10,10), "Hello World", fill=(255,255,0))
+# some_image.save('some_image.png')
+
+
 from skimage import measure
 labels = measure.label(img_bw_filled_holes)
 print(labels.max())
-
 
 contours,hierarchy = cv2.findContours(img_bw_filled_holes, 1, 2)
 exclude_halves(contours, img_bw_filled_holes)
@@ -107,7 +98,6 @@ for i, c in enumerate(contours):
     contours_poly[i] = cv2.approxPolyDP(c, 3, True)
     boundRect[i] = cv2.boundingRect(contours_poly[i])
 
-drawing = np.zeros((img_bw_filled_holes.shape[0], img_bw_filled_holes.shape[1], 3), dtype=np.uint8)
 
 for i in range(len(contours)):
     color = (255,0,0)                                                                                         #red color
@@ -119,11 +109,19 @@ for i in range(len(contours)):
                 color,\
                 1)
 
+# getting coordinates of the top left corner of the objects
+x_coordinates_of_cells = [lis[0] for lis in boundRect]
+y_coordinates_of_cells = [lis[1] for lis in boundRect]
+
 i = 1
 for cnt in contours:
     area = cv2.contourArea(cnt)
     print('Area of contour #'+str(i) +' is: '+str(area))
-    i=i+1
+    d.text((x_coordinates_of_cells[i-1],y_coordinates_of_cells[i-1]),\
+           'Cell #'+str(i-1)+'\nArea:'+str(area),\
+           fill=(255, 0, 0))
+    some_image.save('some_image.png')
+    i = i + 1
 
 #------------------------------------shades of grey---------------------------------------------------------------------
 
@@ -145,16 +143,18 @@ for i in range(len(contours)):
                                 int(boundRect[i][0])]
     meanGrey[i]=meanGrey[i]/((int(boundRect[i][3])*(int(boundRect[i][2]))))
     print('Mean shade of grey of bounding box #' + str(i + 1) + ' is : ' + str(meanGrey[i]))
-
+    d.text((x_coordinates_of_cells[i - 1], y_coordinates_of_cells[i - 1]+20), \
+           'Mean shade of grey:' + str(meanGrey[i]), \
+           fill=(255, 0, 0))
 #-----------------------------------------------------------------------------------------------------------------------
 
 # cv2.namedWindow('main')
 cv2.imwrite('b.png',img)
-cv2.imshow('main',img_bw)
+cv2.imshow('img_bw',img_bw)
 # cv2.imshow('main1',img)
-cv2.imshow('main2',img_blurred)
-cv2.imshow('main3',img_bw_filled_holes)
-cv2.imshow('main4',img_blurred_clean)
+cv2.imshow('img_blurred',img_blurred)
+cv2.imshow('img_bw_filled_holes',img_bw_filled_holes)
+cv2.imshow('img_blurred_clean',img_blurred_clean)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
