@@ -1,15 +1,12 @@
 import cv2
 import numpy as np
 import math
-import matplotlib.pyplot as plt
-import skimage.morphology, skimage.data
 from scipy import ndimage
 from PIL import Image, ImageEnhance, ImageFont, ImageDraw
 
 
 filename='N3.png'
 img=cv2.imread(filename,cv2.IMREAD_GRAYSCALE)
-kernel_test_11 = np.ones((11,11),np.uint8)
 kernel_test_2 = np.ones((2,2),np.uint8)
 print (img.shape)
 
@@ -151,15 +148,13 @@ for i in range(len(contours)):
     final_image=cv2.imread('final_image.png',cv2.IMREAD_COLOR)
 #-----------------------------------------------------------------------------------------------------------------------
 
-cv2.imshow('img',img)
-cv2.waitKey(0)
 cv2.imshow('img_blurred',img_blurred)
-cv2.waitKey(0)
-cv2.imshow('img_blurred_clean',img_blurred_clean)
 cv2.waitKey(0)
 cv2.imshow('img_bw',img_bw)
 cv2.waitKey(0)
 cv2.imshow('img_bw_filled_holes',img_bw_filled_holes)
+cv2.waitKey(0)
+cv2.imshow('img_objects_pointed_out',img_blurred_clean)
 cv2.waitKey(0)
 cv2.imshow('final_image',final_image)
 cv2.waitKey(0)
