@@ -142,19 +142,25 @@ for i in range(len(contours)):
                                 int(boundRect[i][0])] + image_of_shades[int(boundRect[i][1]),\
                                 int(boundRect[i][0])]
     meanGrey[i]=meanGrey[i]/((int(boundRect[i][3])*(int(boundRect[i][2]))))
+    meanGrey[i]=round(meanGrey[i],2)
     print('Mean shade of grey of bounding box #' + str(i + 1) + ' is : ' + str(meanGrey[i]))
-    d.text((x_coordinates_of_cells[i - 1], y_coordinates_of_cells[i - 1]+20), \
-           'Mean shade of grey:' + str(meanGrey[i]), \
+    d.text((x_coordinates_of_cells[i - 1], y_coordinates_of_cells[i - 1]+30), \
+           'Grey:' + str(meanGrey[i]), \
            fill=(255, 0, 0))
+    some_image.save('final_image.png')
+    final_image=cv2.imread('final_image.png',cv2.IMREAD_COLOR)
 #-----------------------------------------------------------------------------------------------------------------------
 
-# cv2.namedWindow('main')
-cv2.imwrite('b.png',img)
-cv2.imshow('img_bw',img_bw)
-# cv2.imshow('main1',img)
+cv2.imshow('img',img)
+cv2.waitKey(0)
 cv2.imshow('img_blurred',img_blurred)
-cv2.imshow('img_bw_filled_holes',img_bw_filled_holes)
+cv2.waitKey(0)
 cv2.imshow('img_blurred_clean',img_blurred_clean)
-
+cv2.waitKey(0)
+cv2.imshow('img_bw',img_bw)
+cv2.waitKey(0)
+cv2.imshow('img_bw_filled_holes',img_bw_filled_holes)
+cv2.waitKey(0)
+cv2.imshow('final_image',final_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
